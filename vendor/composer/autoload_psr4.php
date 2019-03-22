@@ -27,4 +27,5 @@ return array(
     'Consolidation\\Log\\' => array($vendorDir . '/consolidation/log/src'),
     'Consolidation\\Config\\' => array($vendorDir . '/consolidation/config/src'),
     'Consolidation\\AnnotatedCommand\\' => array($vendorDir . '/consolidation/annotated-command/src'),
+    'Cda2019\\RoboDemo\\' => array($baseDir . '/src'),
 );

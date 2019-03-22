@@ -1,5 +1,14 @@
 {
+    "name": "cda2019/robo-demo",
+    "description": "Robo Demo",
+    "license": "GPL-3.0-or-later",
     "require": {
-        "consolidation/robo": "^1.4"
+        "consolidation/robo": "^1.4",
+        "symfony/finder": "^4.2"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cheppers\\RoboDemo\\": "src/",
+        }
     }
 }

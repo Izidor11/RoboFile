@@ -2,13 +2,17 @@
 
 declare(strict_types = 1);
 
+use Cda2019\RoboDemo\Robo\Task\HelloWorldTask;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\CommandResult;
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
+use Symfony\Component\Finder\Finder;
+use Cda2019\RoboDemo\Robo\HelloWorldTaskLoader;
 
-class RoboFile extends \Robo\Tasks implements \Psr\Log\LoggerAwareInterface
+class RoboFile extends \Robo\Tasks implements \Psr\Log\LoggerAwareInterface , \Robo\Contract\ConfigAwareInterface
 {
-
+  use HelloWorldTaskLoader;
+  use \Robo\Common\ConfigAwareTrait;
   use \Psr\Log\LoggerAwareTrait;
 
   /**
@@ -67,7 +71,8 @@ class RoboFile extends \Robo\Tasks implements \Psr\Log\LoggerAwareInterface
   }
   /**
    * @hook validate @myMinLengthArg
-   * @ nélkül megadhatot konkrétan a függvény nevét , így az összes tagelt függvényt validálja
+   * @ nélkül megadhatot konkrétan a függvény nevét , így az összes tagelt
+   *   függvényt validálja
    */
   public function validateMyMinLength(CommandData $commandData) {
 
@@ -259,13 +264,13 @@ class RoboFile extends \Robo\Tasks implements \Psr\Log\LoggerAwareInterface
       '70400' =>
         [
           'version' => '7.4.0',
-          'date' => '2018.03.06'
+          'date' => '2018.03.06',
         ],
       '70500' =>
         [
           'version' => '7.5.0',
-          'date' => '2018.04.06'
-        ]
+          'date' => '2018.04.06',
+        ],
     ];
   }
 
@@ -382,6 +387,137 @@ class RoboFile extends \Robo\Tasks implements \Psr\Log\LoggerAwareInterface
     return $cb;
   }
 
+  /**
+   * @command my:closure-02
+   */
+  public function myClosure02(){
+    $cb = $this->collectionBuilder();
 
+    $myTask01 = function () {
+      $this->say('My Closure');
+    };
+
+    $cb->addCode($myTask01);
+
+    $execStackTask = $this->taskExecStack();
+    $execStackTask->exec('echo my 01');
+    $execStackTask->exec('echo my 02');
+
+    $cb->addTask($execStackTask);
+
+    return $cb;
+  }
+
+  /**
+   * @command my:closure-03
+   */
+  public function myClosure03(){
+    $cb = $this->collectionBuilder();
+
+    $myTask01 = function (Robo\State\Data $state) {
+      $this->say('My Closure');
+
+      $state['myCommand'] = 'echo "command from state"';
+      return 0;
+    };
+
+    $cb->addCode($myTask01);
+
+    /** @var \Robo\Task\Base\ExecStack|\Robo\Collection\CollectionBuilder $execStackTask */
+
+    $execStackTask = $this->taskExecStack();
+    $execStackTask->exec('echo my 01');
+    $execStackTask->deferTaskConfiguration('exec',
+      'myCommand');
+    $cb->addTask($execStackTask);
+
+    return $cb;
+  }
+
+  /**
+   * @command my:closure-04
+   */
+  public function myClosure04(){
+    $cb = $this->collectionBuilder();
+    $cb->addCode(function (\Robo\State\Data $state): int {
+      $state['files'] = (new Finder())
+        ->in('.')
+        ->depth('0');
+
+        return 0;
+    });
+    $cb->addCode(function (\Robo\State\Data $state): int {
+      /** @var \Symfony\Component\Finder\SplFileInfo $file */
+      foreach($state['files'] as $file){
+        $this->say($file->getRelativePathname());
+      }
+      return 0;
+    });
+
+    return $cb;
+  }
+
+  /**
+   * @command my:helloworld-01
+   */
+  public function myHelloWorld01(){
+
+    /** @var \Robo\Task\Base\ExecStack|\Robo\Collection\CollectionBuilder $execStackTask */
+      $task = $this->task(HelloWorldTask::class);
+      $task->setOutPut($this->output());
+
+      return $task;
+  }
+
+  /**
+   * @command my:helloworld-02
+   */
+  public function myHelloWorld02(){
+
+    $task = $this->task(HelloWorldTask::class);
+    $task->setOutPut($this->output());
+
+    return $task;
+  }
+
+  /**
+   * @command my:helloworld-03
+   *
+   * @param int $exitCode
+   */
+  public function myHelloWorld03($exitCode = 0){
+
+    settype($exitCode, 'integer');
+    $cb = $this->collectionBuilder();
+    $cb -> addTask($this
+      ->taskHelloWorld()
+      ->setOutPut($this->output()))
+      ->setExitCode($exitCode);
+
+    $cb->addTask($this->taskExec('false'));
+    return $cb;
+  }
+
+  /**
+   * @command my:robo:config
+   *
+   * @param $options
+   *
+   * @return CommandResult
+   */
+  public function myRoboConfig(
+    $options = [
+      'format' => 'yaml',
+    ]
+){
+    $config = $this->getConfig();
+
+    var_dump($config->get('level 01'));
+    var_dump($config->get('level 01.level02'));
+    var_dump($config->get('level 01.level02.level03'));
+
+
+    return CommandResult::data($this->getConfig()->export());
+  }
 
 }

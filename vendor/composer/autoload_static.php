@@ -53,6 +53,7 @@ class ComposerStaticInitb72df9206c06e0ae8bd2d18eec9095cd
             'Consolidation\\Log\\' => 18,
             'Consolidation\\Config\\' => 21,
             'Consolidation\\AnnotatedCommand\\' => 31,
+            'Cda2019\\RoboDemo\\' => 17,
         ),
     );
 
@@ -140,6 +141,10 @@ class ComposerStaticInitb72df9206c06e0ae8bd2d18eec9095cd
         'Consolidation\\AnnotatedCommand\\' => 
         array (
             0 => __DIR__ . '/..' . '/consolidation/annotated-command/src',
+        ),
+        'Cda2019\\RoboDemo\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
         ),
     );
 

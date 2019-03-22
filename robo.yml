@@ -1,0 +1,6 @@
+myKey01: 'myValue01'
+
+level01:
+  level02:
+    level03: 'value-on-level-03'
+    other: 'akom ${level01.level02.level03} bakom'
